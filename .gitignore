@@ -1,0 +1,18 @@
+# Ignore reports folder
+nccs_plagiarism/media/reports/
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environment
+venv/
+.env
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
