@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Similarity Result</title>
+</head>
+<body>
+
+<h2>Similarity Result</h2>
+
+{% if result is not None %}
+    <p><strong>Submitted Report:</strong> {{ report1_name }}</p>
+    <p><strong>Highest Similarity:</strong> {{ result }}%</p>
+
+    <h3>Detailed Comparison</h3>
+    <table border="1">
+        <tr>
+            <th>Repository Report</th>
+            <th>Similarity (%)</th>
+        </tr>
+
+        {% for item in similarity_table %}
+        <tr>
+            <td>{{ item.past_report_name }}</td>
+            <td>{{ item.similarity }}%</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No repository reports available for comparison.</p>
+{% endif %}
+
+</body>
+</html>

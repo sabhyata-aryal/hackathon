@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Report</title>
+    <style>
+        :root {
+            --bg: #f2f7ff;
+            --card: #ffffff;
+            --primary: #0e4ec5;
+            --primary-dark: #0c3eaa;
+            --text: #1a223a;
+            --border: #d8e2fc;
+            --danger: #e65858;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at top right, #edf3ff 0%, var(--bg) 48%, #e8edf4 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .card {
+            width: min(640px, 100%);
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 18px 45px rgba(52, 71, 116, 0.12);
+            padding: 28px;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: clamp(1.6rem, 2vw, 2rem);
+            letter-spacing: 0.02em;
+        }
+
+        p.subtitle {
+            margin: 0 0 22px;
+            color: #5b6d98;
+            font-size: 0.95rem;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            color: #5d6b8a;
+            transition: 0.2s ease, background-color 0.2s ease;
+            margin-bottom: 14px;
+            background: #fafcff;
+        }
+
+        .drop-zone.hover {
+            border-color: var(--primary);
+            background-color: #eff5ff;
+            color: var(--primary-dark);
+        }
+
+        .drop-zone p {
+            margin: 0; 
+            font-size: 0.98rem;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-summary {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            min-height: 60px;
+            font-size: 0.95rem;
+            color: #2c3b65;
+            margin-bottom: 18px;
+            background: #f8faff;
+        }
+
+        .file-summary strong {
+            color: #24345f;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            background: var(--primary);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 12px 16px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .msg {
+            margin-top: 14px;
+            color: #2a428b;
+            font-size: 0.9rem;
+        }
+
+        .error {
+            color: var(--danger);
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <section class="card">
+        <h1>Upload your report</h1>
+        <p class="subtitle">Submit your document for plagiarism analysis. Supported formats: PDF, DOCX, TXT.</p>
+
+        <form id="uploadForm" method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="drop-zone" id="dropZone" aria-label="File upload drop zone" tabindex="0">
+                <p>Drag &amp; drop a file here, or click to choose a file.</p>
+            </div>
+
+            <div class="file-summary" id="fileSummary">No file selected yet.</div>
+
+            {{ form.as_p }}
+
+            <button class="btn" id="submitBtn" type="submit" disabled>Upload</button>
+
+            <p class="msg">Tip: Double-check file name and report type before uploading.</p>
+            <p class="error" id="errorMessage" hidden></p>
+        </form>
+    </section>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileSummary = document.getElementById('fileSummary');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const fileInput = document.querySelector('input[type=file]');
+
+        function setFile(file) {
+            if (!file) {
+                fileSummary.innerHTML = 'No file selected yet.';
+                submitBtn.disabled = true;
+                return;
+            }
+
+            const sizeKb = (file.size / 1024).toFixed(1);
+            fileSummary.innerHTML = `<strong>File selected:</strong> ${file.name} (${sizeKb} KB)`;
+            submitBtn.disabled = false;
+            errorMessage.hidden = true;
+        }
+
+        function populateInput(files) {
+            if (files.length === 0) {
+                setFile(null);
+                return;
+            }
+            fileInput.files = files;
+            setFile(files[0]);
+        }
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                fileInput.click();
+            }
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            populateInput(event.target.files);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('hover');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('hover');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const droppedFiles = e.dataTransfer.files;
+            if (droppedFiles.length > 0) {
+                populateInput(droppedFiles);
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            if (!fileInput.files.length) {
+                event.preventDefault();
+                errorMessage.textContent = 'Please select a file before uploading.';
+                errorMessage.hidden = false;
+                return;
+            }
+
+            const allowed = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+            const ftype = fileInput.files[0].type;
+            if (!allowed.includes(ftype) && !/\.(pdf|docx|txt)$/i.test(fileInput.files[0].name)) {
+                event.preventDefault();
+                errorMessage.textContent = 'File type not supported. Please use PDF, DOCX, or TXT.';
+                errorMessage.hidden = false;
+                return;
+            }
+
+            submitBtn.textContent = 'Uploading...';
+            submitBtn.disabled = true;
+        });
+
+        // Initialize default state in case form is pre-filled by browser
+        if (fileInput && fileInput.files.length) {
+            setFile(fileInput.files[0]);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository | NCCS Plagiarism Detection System</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6fb;
+            color: #2a164d;
+        }
+
+        .page-header {
+            padding: 2.1rem 1rem;
+            text-align: center;
+            color: #fff;
+            background: linear-gradient(120deg, #2a0f5f 0%, #73228a 48%, #d3198b 100%);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2.6vw, 2rem);
+        }
+
+        .container {
+            width: min(950px, calc(100% - 2rem));
+            margin: 1.6rem auto 2.5rem;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 14px 32px rgba(20, 15, 59, 0.12);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f1e9fb;
+        }
+
+        th, td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #efebf7;
+            text-align: left;
+        }
+
+        th {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: #5e2a89;
+            letter-spacing: 0.03em;
+        }
+
+        .empty {
+            padding: 1.6rem 1rem;
+            text-align: center;
+            color: #5e5c73;
+        }
+
+        .actions {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 999px;
+            color: #fff;
+            font-weight: 600;
+            background: linear-gradient(115deg, #5d1f92, #d72c96);
+        }
+    </style>
+</head>
+<body>
+    <header class="page-header">
+        <h1>Report Repository</h1>
+    </header>
+
+    <section class="container">
+        {% if past_reports %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Uploaded At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in past_reports %}
+                <tr>
+                    <td>{{ report.title }}</td>
+                    <td>{{ report.uploaded_at|date:"M d, Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty">No repository reports available yet.</div>
+        {% endif %}
+    </section>
+
+    <div class="actions">
+        <a class="btn" href="{% url 'home' %}">Back to Home</a>
+    </div>
+</body>
+</html>
